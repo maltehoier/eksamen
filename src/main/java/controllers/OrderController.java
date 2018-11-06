@@ -76,7 +76,7 @@ public class OrderController {
       dbCon = new DatabaseController();
     }
 
-    String sql = "SELECT * FROM order";
+    String sql = "SELECT * FROM orders";
 
     ResultSet rs = dbCon.query(sql);
     ArrayList<Order> orders = new ArrayList<Order>();
@@ -152,6 +152,7 @@ public class OrderController {
             + ", "
             + order.getUpdatedAt()
             + ")");
+
 
     if (orderID != 0) {
       //Update the productid of the product before returning

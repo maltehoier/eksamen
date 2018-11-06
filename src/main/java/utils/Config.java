@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+//Denne klasse bruges til at tilgå data fra config JSON filen
 public final class Config {
 
   private static String DATABASE_HOST;
@@ -20,10 +21,23 @@ public final class Config {
   private static String SOLR_PATH;
   private static String SOLR_CORE;
   private static long PRODUCT_TTL;
+  private static long ORDER_TTL; //SELV TILFØJET
+  private static long USER_TTL; //selv tilføjet
+  //tilføjer encryption key
+  private static String ENCRYPTION_KEY;
+  private static String SALT_KEY; // selv tilføjet
+
+  public static char[] getEncryptionKey() {return ENCRYPTION_KEY.toCharArray();}
+
+  public static String getSaltKey() {return SALT_KEY;}
 
   public static long getProductTtl() {
     return PRODUCT_TTL;
   }
+
+  public static long getOrderTtl() { return ORDER_TTL; } //SELV TILFØJET
+
+  public static long getUserTtl() { return USER_TTL; }
 
   public static String getDatabaseHost() {
     return DATABASE_HOST;
@@ -99,5 +113,10 @@ public final class Config {
     SOLR_PATH = json.get("SOLR_PATH").toString().replace("\"", "");
     SOLR_CORE = json.get("SOLR_CORE").toString().replace("\"", "");
     PRODUCT_TTL = json.get("PRODUCT_TTL").getAsLong();
+    ORDER_TTL = json.get("ORDER_TTL").getAsLong(); //selv tilføjet
+    USER_TTL = json.get("USER_TTL").getAsLong(); //selv tilføjet
+    ENCRYPTION_KEY = json.get("ENCRYPTION_KEY").toString().replace("\"","");
+    SALT_KEY = json.get("SALT_KEY").getAsString(); // selv tilføjet
+
   }
 }
