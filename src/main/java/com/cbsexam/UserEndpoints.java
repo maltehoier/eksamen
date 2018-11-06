@@ -104,7 +104,7 @@ public class UserEndpoints {
 @Path("/delete/{delete}")
   public Response deleteUser(@PathParam("delete") int idToDelete) {
     UserController.deleteUser(idToDelete);
-  // selv tilføjet så det ikke hentes fra den uopdaterede cach
+  // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
   userCache.getUsers(true);
 
     if(idToDelete!=0) {
