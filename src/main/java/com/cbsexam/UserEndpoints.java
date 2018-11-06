@@ -107,7 +107,7 @@ public class UserEndpoints {
   // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
   userCache.getUsers(true);
 
-    if(idToDelete!=0) {
+    if(UserController.getUser(idToDelete)!= null) {
   return Response.status(200).entity("User ID "+idToDelete + " deleted").build();
 
 
@@ -119,9 +119,33 @@ else
   }
 
   // TODO: Make the system able to update users
-  public Response updateUser(String x) {
+  //husk at fixe så den kan give den rigtige fejlmeddelelse
+  @POST
+  @Path("/update/{update}")
+  public Response updateUser(@PathParam("update") int idToUpdate, String body) {
+    User updates = new Gson().fromJson(body, User.class);
+    User currentUser = UserController.getUser(idToUpdate);
 
+    if(updates.getFirstname() == null) {
+      updates.setFirstname(currentUser.getFirstname());
+    }
+
+    if(updates.getLastname() == null) {
+      updates.setLastname(currentUser.getLastname());
+    }
+    if (updates.getEmail() == null){
+      updates.setEmail(currentUser.getEmail());
+    }
+
+    //metode til at ændre password
+
+    UserController.updateUser(idToUpdate,updates);
+if (UserController.getUser(idToUpdate) != null){
+  userCache.getUsers(true);
+
+  return Response.status(200).entity("The user with the "+idToUpdate + " is now updated").build();
+}else
     // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    return Response.status(400).entity("Could not update user details").build();
   }
 }

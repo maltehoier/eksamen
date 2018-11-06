@@ -150,4 +150,14 @@ public class UserController {
 
     dbCon.deleteUser(sql);
   }
+  public static void updateUser(int id, User updates){
+    // tjekker om der er forbindelse til DB
+    if(dbCon==null){
+      dbCon=new DatabaseController();
+    }
+    String sql = "UPDATE user set first_name = '"+updates.getFirstname()+"', last_name='"+updates.getLastname()+"', email= '"+updates.getEmail()+"' WHERE id=" + id;
+
+    dbCon.updateUser(sql);
+
+  }
 }
