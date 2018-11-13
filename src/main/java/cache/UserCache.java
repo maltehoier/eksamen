@@ -1,8 +1,6 @@
 package cache;
 
-import controllers.ProductController;
 import controllers.UserController;
-import model.Product;
 import model.User;
 import utils.Config;
 

@@ -24,7 +24,7 @@ public class UserController {
     }
 
     // Build the query for DB
-    String sql = "SELECT * FROM user where id=" + id;
+    String sql = "SELECT * FROM user where id='" + id;
 
     // Actually do the query
     ResultSet rs = dbCon.query(sql);
@@ -159,5 +159,40 @@ public class UserController {
 
     dbCon.updateUser(sql);
 
+  }
+
+  public static User getUserByEmail(String userEmail)  {
+
+    if(dbCon==null){
+      dbCon=new DatabaseController();
+    }
+
+    String sql = "SELECT * FROM user WHERE email = '" + userEmail + "'";
+
+    ResultSet rs =  dbCon.query(sql);
+    User user = null;
+
+    try {
+
+      if (rs.next()) {
+        user =
+                new User(
+                        rs.getInt("id"),
+                        rs.getString("first_name"),
+                        rs.getString("last_name"),
+                        rs.getString("password"),
+                        rs.getString("email"));
+
+        // return the create object
+        return user;
+      } else {
+        System.out.println("No user found");
+      }
+    } catch (SQLException ex) {
+      System.out.println(ex.getMessage());
+    }
+
+    // Return null
+    return user;
   }
 }

@@ -1,6 +1,5 @@
 package com.cbsexam;
 
-import cache.ProductCache;
 import cache.UserCache;
 import com.google.gson.Gson;
 import controllers.UserController;
@@ -14,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import model.User;
 import utils.Encryption;
+import utils.Hashing;
 import utils.Log;
 
 @Path("user")
@@ -35,7 +35,7 @@ public class UserEndpoints {
     // TODO: Add Encryption to JSON: FIXED
     // Convert the user object to json in order to return the object
     String json = new Gson().toJson(user);
-    json= Encryption.encryptDecryptXOR(json);
+    json = Encryption.encryptDecryptXOR(json);
 
     // Return the user with the status code 200
     // TODO: What should happen if something breaks down?
@@ -43,7 +43,9 @@ public class UserEndpoints {
   }
   //selv tilføjet. Sættes uden for metoden getProduct, fordi ellers ville der blive oprettet en ny cache hver gang
 
-  /** @return Responses */
+  /**
+   * @return Responses
+   */
   @GET
   @Path("/")
   public Response getUsers() {
@@ -57,7 +59,7 @@ public class UserEndpoints {
     // TODO: Add Encryption to JSON: FIXED
     // Transfer users to json in order to return it to the user
     String json = new Gson().toJson(users);
-    json= Encryption.encryptDecryptXOR(json);
+    json = Encryption.encryptDecryptXOR(json);
 
     // Return the users with the status code 200
     return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
@@ -74,10 +76,11 @@ public class UserEndpoints {
     // Use the controller to add the user
     User createUser = UserController.createUser(newUser);
 
-    userCache.getUsers(true);
+
 
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createUser);
+    userCache.getUsers(true);
 
     // Return the data to the user
     if (createUser != null) {
@@ -92,30 +95,42 @@ public class UserEndpoints {
   @POST
   @Path("/login")
   @Consumes(MediaType.APPLICATION_JSON)
-  public Response loginUser(String x) {
+  public Response loginUser(String body) {
+
+    User signedInUser = new Gson().fromJson(body, User.class);
+    Hashing hashing = new Hashing();
+
+    User userFromDB = UserController.getUserByEmail(signedInUser.getEmail());
+    String json = new Gson().toJson(userFromDB);
+
+
 
     // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Endpoint not implemented yet").build();
+    if (userFromDB.getEmail() != null && signedInUser.getEmail().equals(userFromDB.getEmail()) && hashing.hashWithSalt(signedInUser.getPassword()).equals(userFromDB.getPassword())) {
+      return Response.status(200).entity("Signed in").build();
+
+    }
+
+    else
+    return Response.status(400).entity("Password or username is wrong").build();
   }
 
   // TODO: Make the system able to delete users. FIXED
   //selv tilføjet
-@POST
-@Path("/delete/{delete}")
+  @POST
+  @Path("/delete/{delete}")
   public Response deleteUser(@PathParam("delete") int idToDelete) {
     UserController.deleteUser(idToDelete);
-  // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
-  userCache.getUsers(true);
+    // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
+    userCache.getUsers(true);
 
-    if(UserController.getUser(idToDelete)!= null) {
-  return Response.status(200).entity("User ID "+idToDelete + " deleted").build();
+    if (UserController.getUser(idToDelete) != null) {
+      return Response.status(200).entity("User ID " + idToDelete + " deleted").build();
 
 
-
-}
-else
-  //Hvis man ikke kan få slettet en bruger. Fx hvis brugeren ikke findes
-    return Response.status(400).entity("Unable to delete user").build();
+    } else
+      //Hvis man ikke kan få slettet en bruger. Fx hvis brugeren ikke findes
+      return Response.status(400).entity("Unable to delete user").build();
   }
 
   // TODO: Make the system able to update users
@@ -126,26 +141,27 @@ else
     User updates = new Gson().fromJson(body, User.class);
     User currentUser = UserController.getUser(idToUpdate);
 
-    if(updates.getFirstname() == null) {
+    if (updates.getFirstname() == null) {
       updates.setFirstname(currentUser.getFirstname());
     }
 
-    if(updates.getLastname() == null) {
+    if (updates.getLastname() == null) {
       updates.setLastname(currentUser.getLastname());
     }
-    if (updates.getEmail() == null){
+    if (updates.getEmail() == null) {
       updates.setEmail(currentUser.getEmail());
     }
 
     //metode til at ændre password
 
-    UserController.updateUser(idToUpdate,updates);
-if (UserController.getUser(idToUpdate) != null){
-  userCache.getUsers(true);
+    UserController.updateUser(idToUpdate, updates);
+    if (UserController.getUser(idToUpdate) != null) {
+      userCache.getUsers(true);
 
-  return Response.status(200).entity("The user with the "+idToUpdate + " is now updated").build();
-}else
-    // Return a response with status 200 and JSON as type
-    return Response.status(400).entity("Could not update user details").build();
+      return Response.status(200).entity("The user with the " + idToUpdate + " is now updated").build();
+    } else
+      // Return a response with status 200 and JSON as type
+      return Response.status(400).entity("Could not update user details").build();
   }
+
 }
