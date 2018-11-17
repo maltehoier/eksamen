@@ -107,7 +107,7 @@ public class UserEndpoints {
 
     // Return a response with status 200 and JSON as type
     if (userFromDB.getEmail() != null && signedInUser.getEmail().equals(userFromDB.getEmail()) && hashing.hashWithSalt(signedInUser.getPassword()).equals(userFromDB.getPassword())) {
-      return Response.status(200).entity("Signed in").build();
+      return Response.status(200).entity("Signed in" + json).build();
 
     }
 
