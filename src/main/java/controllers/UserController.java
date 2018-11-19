@@ -44,6 +44,7 @@ public class UserController {
                 rs.getString("password"),
                 rs.getString("email"));
 
+
         // return the create object
         return user;
       } else {
@@ -158,11 +159,14 @@ public class UserController {
     if(dbCon==null){
       dbCon=new DatabaseController();
     }
-    String sql = "UPDATE user set first_name = '"+updates.getFirstname()+"', last_name='"+updates.getLastname()+"', email= '"+updates.getEmail()+"' WHERE id=" + id;
 
-    dbCon.updateUser(sql);
+    //selv tilføjet if statement
 
-  }
+      String sql = "UPDATE user set first_name = '" + updates.getFirstname() + "', last_name='" + updates.getLastname() + "', email= '" + updates.getEmail() + "' WHERE id=" + id;
+
+      dbCon.updateUser(sql);
+    }
+
 
   public static User getUserByEmail(String userEmail)  {
 

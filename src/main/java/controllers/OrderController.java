@@ -132,6 +132,7 @@ public class OrderController {
 
     try {
       //skal ikke autoCommite hver gange. Vi skal være sikker på at det gøres korrekt først
+      //Vi skal have alt data med for at lave en order. så deer ikke er null værider
       DatabaseController.getConnection().setAutoCommit(false);
 
       // Save addresses to database and save them back to initial order instance
@@ -173,7 +174,7 @@ public class OrderController {
         item = LineItemController.createLineItem(item, order.getId());
         items.add(item);
 
-        //selv tilføjet
+        //selv tilføjet. manuelt commit, kommer til databasen
         DatabaseController.getConnection().commit();
       }
 
@@ -184,7 +185,7 @@ public class OrderController {
     catch (SQLException e) {
       try {
 
-        //google rollback
+        //google rollback --> stopper lukker connection til databasen.
         DatabaseController.getConnection().rollback();
       }
       catch (SQLException e1) {
@@ -194,6 +195,7 @@ public class OrderController {
 
       finally {
         try {
+          //skal virke for at andre metoder kan virke
           DatabaseController.getConnection().setAutoCommit(true);
         }
         catch (SQLException e2) {
