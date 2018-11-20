@@ -44,11 +44,7 @@ public class UserController {
                 rs.getString("password"),
                 rs.getString("email"));
 
-        //Selv tilføjet:
-        Algorithm algorithm = Algorithm.HMAC256("Malte");
-        //opretter en token. Så man kan finde et ID ud fra en token
-        String token = JWT.create().withClaim("id", user.getId()).sign(algorithm);
-        user.setToken(token);
+
 
 
         // return the create object
@@ -168,7 +164,7 @@ public class UserController {
 
     //selv tilføjet if statement
 
-      String sql = "UPDATE user set first_name = '" + updates.getFirstname() + "', last_name='" + updates.getLastname() + "', email= '" + updates.getEmail() + "' WHERE id=" + id;
+      String sql = "UPDATE user set first_name = '" + updates.getFirstname() + "', last_name='" + updates.getLastname() + "', email= '" + updates.getEmail() + "', password= '" + updates.getPassword() + "' WHERE id=" + id;
 
       dbCon.updateUser(sql);
     }

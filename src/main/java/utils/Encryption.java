@@ -8,7 +8,7 @@ public final class Encryption {
     if (Config.getEncryption()) {
 
       // The key is predefined and hidden in code
-      // TODO: Create a more complex code and store it somewhere better
+      // TODO: Create a more complex code and store it somewhere better. FIXED
       //lige nu står nøglen i koden og andre kan tilgå det, hvis de åbner koden
       //derfor skal den over i ressources, som ikke kommer når koden sendes til andre eller oploades til github
       char[] key = Config.getEncryptionKey();

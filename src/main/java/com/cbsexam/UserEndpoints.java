@@ -96,7 +96,7 @@ public class UserEndpoints {
         }
     }
 
-    // TODO: Make the system able to login users and assign them a token to use throughout the system.
+    // TODO: Make the system able to login users and assign them a token to use throughout the system. FIXED
     @POST
     @Path("/login")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -121,87 +121,104 @@ public class UserEndpoints {
     //selv tilføjet
     @POST
     @Path("/delete/{delete}")
-    public Response deleteUser(@PathParam("delete") int idToDelete) {
+    public Response deleteUser(@PathParam("delete") int idToDelete, String body) {
 
-//den fejler hvis man forsøger at slette et id som ikke findes
 
-        //henter user ud fra id. token bliver også hentet med --> se "getUser"-metoden
-        User currentUser = UserController.getUser(idToDelete);
-        //decoder token og gemmer det i "jwt"
-        DecodedJWT jwt = JWT.decode(currentUser.getToken());
+        try {
+            User userToDelete = new Gson().fromJson(body, User.class);
 
-        if (jwt.getClaim("id").asInt() == idToDelete) {
-            UserController.deleteUser(idToDelete);
-            // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
-            userCache.getUsers(true);
 
-            return Response.status(200).entity("User ID " + idToDelete + " deleted").build();
+            //decoder token og gemmer det i "jwt"
+            DecodedJWT jwt = JWT.decode(userToDelete.getToken());
 
-        }
-        else
-            //Hvis man ikke kan få slettet en bruger. Fx hvis brugeren ikke findes
+            if (jwt.getClaim("id").asInt() == idToDelete) {
+                UserController.deleteUser(idToDelete);
+                // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
+                userCache.getUsers(true);
+
+                return Response.status(200).entity("User ID " + idToDelete + " deleted").build();
+
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             return Response.status(400).entity("Unable to delete user").build();
+        }
+
+        //Hvis man ikke kan få slettet en bruger. Fx hvis brugeren ikke findes
+        return null;
     }
 
-    // TODO: Make the system able to update users
+    // TODO: Make the system able to update users. FIXED
     //husk at fixe så den kan give den rigtige fejlmeddelelse
     @POST
     @Path("/update/{update}")
     public Response updateUser(@PathParam("update") int idToUpdate, String body) {
 
-
-        //Algorithm algorithm = Algorithm.HMAC256("malte");
-        //JWTVerifier verifier = JWT.require(algorithm)
-          //      .withIssuer("auth0")
-            //    .build(); //Reusable verifier instance
-        //DecodedJWT jwt = verifier.verify(token);
-
-
-        //henter user ud fra id. token bliver også hentet med --> se "getUser"-metoden
+        try {
+        //henter useren fra databasen ud fra brugerens id
         User currentUser = UserController.getUser(idToUpdate);
         //decoder token og gemmer det i "jwt"
-        DecodedJWT jwt = JWT.decode(currentUser.getToken());
+
+            Hashing hashing = new Hashing();
+
+        //henter de opdateringer man ønsker at bruge for useren, som man selv indtaster
+        //man henter sin egen token ved at logge ind og se sin token i postman
+        User updates = new Gson().fromJson(body, User.class);
+
+        //Decoder token som brugeren indtaster i postman
+        DecodedJWT jwt = JWT.decode(updates.getToken());
 
 
+//if-statment der checker om den token man indtaster er lig med brugerens rigtige token
 
-//if-statment der checker om token er lig med det id som skal opdateres
-        if (jwt.getClaim("id").asInt() == idToUpdate) {
-
-            User updates = new Gson().fromJson(body, User.class);
+            if (jwt.getClaim("id").asInt() == idToUpdate) {
 
 
-            //HVAD EN TOKEN BRUGES TIL: sørger for at kun personer med en token kan updatere infomation, fordi så er vi sikker på,
-            //at de er logget ind
+                //beder brugeren om at indtaste token:
 
 
+                //HVAD EN TOKEN BRUGES TIL: sørger for at kun personer med en token kan updatere infomation, fordi så er vi sikker på,
+                //at de er logget ind
 
 
-            if (updates.getFirstname() == null) {
-                updates.setFirstname(currentUser.getFirstname());
+                if (updates.getFirstname() == null) {
+                    updates.setFirstname(currentUser.getFirstname());
+                }
+
+                if (updates.getLastname() == null) {
+                    updates.setLastname(currentUser.getLastname());
+                }
+                if (updates.getEmail() == null) {
+                    updates.setEmail(currentUser.getEmail());
+                }
+
+               if(updates.getPassword() == null) {
+                   updates.setPassword(currentUser.getPassword());
+               }
+               else{
+                   String hashedPassword = hashing.hashWithSalt(updates.getPassword());
+                   updates.setPassword(hashedPassword);
+               }
+
+
+                //metode til at ændre password
+
+                UserController.updateUser(idToUpdate, updates);
+                if (UserController.getUser(idToUpdate) != null) {
+                    userCache.getUsers(true);
+
+                }
+
+                return Response.status(200).entity("The user with the ID " + idToUpdate + " is now updated").build();
             }
-
-            if (updates.getLastname() == null) {
-                updates.setLastname(currentUser.getLastname());
-            }
-            if (updates.getEmail() == null) {
-                updates.setEmail(currentUser.getEmail());
-            }
-
-            //metode til at ændre password
-
-            UserController.updateUser(idToUpdate, updates);
-            if (UserController.getUser(idToUpdate) != null) {
-                userCache.getUsers(true);
-
-            }
-
-            return Response.status(200).entity("The user with the ID " + idToUpdate + " is now updated").build();
-
-        } else
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
             // Return a response with status 200 and JSON as type
             return Response.status(400).entity("Could not update user details").build();
 
 
+        }
+        return null;
 
     }
 
