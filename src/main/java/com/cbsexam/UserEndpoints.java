@@ -122,15 +122,23 @@ public class UserEndpoints {
     @POST
     @Path("/delete/{delete}")
     public Response deleteUser(@PathParam("delete") int idToDelete) {
-        UserController.deleteUser(idToDelete);
-        // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
-        userCache.getUsers(true);
 
-        if (UserController.getUser(idToDelete) != null) {
+//den fejler hvis man forsøger at slette et id som ikke findes
+
+        //henter user ud fra id. token bliver også hentet med --> se "getUser"-metoden
+        User currentUser = UserController.getUser(idToDelete);
+        //decoder token og gemmer det i "jwt"
+        DecodedJWT jwt = JWT.decode(currentUser.getToken());
+
+        if (jwt.getClaim("id").asInt() == idToDelete) {
+            UserController.deleteUser(idToDelete);
+            // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
+            userCache.getUsers(true);
+
             return Response.status(200).entity("User ID " + idToDelete + " deleted").build();
 
-
-        } else
+        }
+        else
             //Hvis man ikke kan få slettet en bruger. Fx hvis brugeren ikke findes
             return Response.status(400).entity("Unable to delete user").build();
     }
@@ -138,8 +146,8 @@ public class UserEndpoints {
     // TODO: Make the system able to update users
     //husk at fixe så den kan give den rigtige fejlmeddelelse
     @POST
-    @Path("/update/{update}/{token}")
-    public Response updateUser(@PathParam("update") int idToUpdate, @PathParam("token") String token, String body) {
+    @Path("/update/{update}")
+    public Response updateUser(@PathParam("update") int idToUpdate, String body) {
 
 
         //Algorithm algorithm = Algorithm.HMAC256("malte");
@@ -148,20 +156,25 @@ public class UserEndpoints {
             //    .build(); //Reusable verifier instance
         //DecodedJWT jwt = verifier.verify(token);
 
-        DecodedJWT jwt = JWT.decode(token);
+
+        //henter user ud fra id. token bliver også hentet med --> se "getUser"-metoden
+        User currentUser = UserController.getUser(idToUpdate);
+        //decoder token og gemmer det i "jwt"
+        DecodedJWT jwt = JWT.decode(currentUser.getToken());
 
 
+
+//if-statment der checker om token er lig med det id som skal opdateres
         if (jwt.getClaim("id").asInt() == idToUpdate) {
 
             User updates = new Gson().fromJson(body, User.class);
-            User currentUser = UserController.getUser(idToUpdate);
 
 
-            //sørger for at kun personer med en token kan updatere infomation, fordi så er vi sikker på,
+            //HVAD EN TOKEN BRUGES TIL: sørger for at kun personer med en token kan updatere infomation, fordi så er vi sikker på,
             //at de er logget ind
 
 
-            //if (updates.getToken())
+
 
             if (updates.getFirstname() == null) {
                 updates.setFirstname(currentUser.getFirstname());
