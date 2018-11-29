@@ -112,13 +112,16 @@ public class DatabaseController {
   }
 
 
-  //hele denne metode er selv tilføjet
+
 
   public void deleteUser(String sql) {
+
+    //getting connection
     if(connection==null)
       connection=getConnection();
 
     try {
+      //inserts SQL statement to make changes in DB
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.executeUpdate();
     }
@@ -128,13 +131,17 @@ public class DatabaseController {
     }
   }
 
-
+  //update user method
   public void updateUser(String sql) {
 
+    //getting connection to DB
     if(connection==null)
       connection=getConnection();
 
+
+
     try {
+      //sending an SQL statement to DB from UserController
       PreparedStatement statement = connection.prepareStatement(sql);
       statement.executeUpdate();
     }

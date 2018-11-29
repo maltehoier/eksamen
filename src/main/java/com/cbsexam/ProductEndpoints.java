@@ -37,7 +37,8 @@ public class ProductEndpoints {
     return Response.status(200).type(MediaType.TEXT_PLAIN_TYPE).entity(json).build();
   }
 
-  //selv tilføjet. Sættes uden for metoden getProduct, fordi ellers ville der blive oprettet en ny cache hver gang
+
+  //to get access to ProductCache
   private static ProductCache productCache = new ProductCache();
 
   /** @return Responses */

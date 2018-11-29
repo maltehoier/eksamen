@@ -1,7 +1,7 @@
 package cache;
 
 //TODO: Build this cache and use it. FIXED
-//Denne klasse bruger samme fremgangsmåde som klassen ProductCache
+//builded up same way as ProductCache
 
 
 import controllers.OrderController;
@@ -12,7 +12,7 @@ import utils.Config;
 
 public class OrderCache {
 
-    // List of products
+    // List of orders
     private ArrayList<Order> orders;
 
     // Time cache should live
@@ -29,7 +29,7 @@ public class OrderCache {
 
         // If we whis to clear cache, we can set force update.
         // Otherwise we look at the age of the cache and figure out if we should update.
-        // If the list is empty we also check for new products
+        // If the list is empty we also check for new orders
         if (forceUpdate
                 || ((this.created + this.ttl) <= (System.currentTimeMillis() / 1000L))
                 || this.orders.isEmpty()) {
@@ -41,7 +41,6 @@ public class OrderCache {
             this.orders = orders;
             this.created = System.currentTimeMillis() / 1000L;
 
-            //else user.getProduct
         }
 
         // Return the documents

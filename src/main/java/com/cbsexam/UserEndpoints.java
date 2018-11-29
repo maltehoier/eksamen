@@ -2,10 +2,6 @@ package com.cbsexam;
 
 import cache.UserCache;
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.google.gson.Gson;
 import controllers.UserController;
@@ -35,19 +31,29 @@ public class UserEndpoints {
     @Path("/{idUser}")
     public Response getUser(@PathParam("idUser") int idUser) {
 
-        // Use the ID to get the user from the controller.
-        User user = UserController.getUser(idUser);
+        try {
 
-        // TODO: Add Encryption to JSON: FIXED
-        // Convert the user object to json in order to return the object
-        String json = new Gson().toJson(user);
-        json = Encryption.encryptDecryptXOR(json);
+            // Use the ID to get the user from the controller.
+            User user = UserController.getUser(idUser);
 
-        // Return the user with the status code 200
-        // TODO: What should happen if something breaks down?
-        return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+            // TODO: Add Encryption to JSON: FIXED
+            // Convert the user object to json in order to return the object
+            String json = new Gson().toJson(user);
+            json = Encryption.encryptDecryptXOR(json);
+
+            // Return the user with the status code 200
+            // TODO: What should happen if something breaks down? FIXED
+            return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return Response.status(400).entity("could not get users").build();
+        }
+
+
     }
-    //selv tilføjet. Sættes uden for metoden getProduct, fordi ellers ville der blive oprettet en ny cache hver gang
+
+
+
 
     /**
      * @return Responses
@@ -102,14 +108,20 @@ public class UserEndpoints {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response loginUser(String body) {
 
+        //User from the body
         User signedInUser = new Gson().fromJson(body, User.class);
+
+        //to get access to Hashing
         Hashing hashing = new Hashing();
 
+        //getting the user from DB with a specific email inserted in the body
         User userFromDB = UserController.getUserByEmail(signedInUser.getEmail());
+
         String json = new Gson().toJson(userFromDB);
 
 
         // Return a response with status 200 and JSON as type
+        //if the user is not null, the username and password matches, then the user will be able to sign in
         if (userFromDB.getEmail() != null && signedInUser.getEmail().equals(userFromDB.getEmail()) && hashing.hashWithSalt(signedInUser.getPassword()).equals(userFromDB.getPassword())) {
             return Response.status(200).entity("Signed in" + json).build();
 
@@ -118,7 +130,6 @@ public class UserEndpoints {
     }
 
     // TODO: Make the system able to delete users. FIXED
-    //selv tilføjet
     @POST
     @Path("/delete/{delete}")
     public Response deleteUser(@PathParam("delete") int idToDelete, String body) {
@@ -128,12 +139,14 @@ public class UserEndpoints {
             User userToDelete = new Gson().fromJson(body, User.class);
 
 
-            //decoder token og gemmer det i "jwt"
+            //decodes token and saves value in "jwt"
             DecodedJWT jwt = JWT.decode(userToDelete.getToken());
 
+            //if the user's token matches the spcific ID, then he will be able to delete
             if (jwt.getClaim("id").asInt() == idToDelete) {
                 UserController.deleteUser(idToDelete);
-                // selv tilføjet så det ikke hentes fra den uopdaterede cach //DEMO!
+
+                //opdates the cache, so changes will be updated
                 userCache.getUsers(true);
 
                 return Response.status(200).entity("User ID " + idToDelete + " deleted").build();
@@ -144,33 +157,35 @@ public class UserEndpoints {
             return Response.status(400).entity("Unable to delete user").build();
         }
 
-        //Hvis man ikke kan få slettet en bruger. Fx hvis brugeren ikke findes
+
         return null;
     }
 
     // TODO: Make the system able to update users. FIXED
-    //husk at fixe så den kan give den rigtige fejlmeddelelse
     @POST
     @Path("/update/{update}")
     public Response updateUser(@PathParam("update") int idToUpdate, String body) {
 
         try {
-        //henter useren fra databasen ud fra brugerens id
+        //getting the user from DB
         User currentUser = UserController.getUser(idToUpdate);
-        //decoder token og gemmer det i "jwt"
 
-            Hashing hashing = new Hashing();
 
-        //henter de opdateringer man ønsker at bruge for useren, som man selv indtaster
-        //man henter sin egen token ved at logge ind og se sin token i postman
+        Hashing hashing = new Hashing();
+
+
+
+        //getting the updates that the user wish to make and save them in a new User object
         User updates = new Gson().fromJson(body, User.class);
 
-        //Decoder token som brugeren indtaster i postman
+        //Decodes token
         DecodedJWT jwt = JWT.decode(updates.getToken());
 
 
 //if-statment der checker om den token man indtaster er lig med brugerens rigtige token
 
+
+            //if statement that checks if a user inserts the right token
             if (jwt.getClaim("id").asInt() == idToUpdate) {
 
 
@@ -180,6 +195,9 @@ public class UserEndpoints {
                 //HVAD EN TOKEN BRUGES TIL: sørger for at kun personer med en token kan updatere infomation, fordi så er vi sikker på,
                 //at de er logget ind
 
+
+                //if-statements that checks if the user has made any changes, if he has not
+                //the value will be set to the old value
 
                 if (updates.getFirstname() == null) {
                     updates.setFirstname(currentUser.getFirstname());
@@ -195,15 +213,17 @@ public class UserEndpoints {
                if(updates.getPassword() == null) {
                    updates.setPassword(currentUser.getPassword());
                }
+
+               //hashing the new password
                else{
                    String hashedPassword = hashing.hashWithSalt(updates.getPassword());
                    updates.setPassword(hashedPassword);
                }
 
+               //sending updates to DB
+               UserController.updateUser(idToUpdate, updates);
 
-                //metode til at ændre password
-
-                UserController.updateUser(idToUpdate, updates);
+               //updates cache to get get the new updates
                 if (UserController.getUser(idToUpdate) != null) {
                     userCache.getUsers(true);
 

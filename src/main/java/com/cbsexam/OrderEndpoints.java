@@ -37,7 +37,7 @@ public class OrderEndpoints {
     return Response.status(200).type(MediaType.APPLICATION_JSON).entity(json).build();
   }
 
-  //selv tilføjet(til senere brug)
+  //to get access to OrderCache to make it possible to update cache
   private static OrderCache orderCache = new OrderCache();
 
   /** @return Responses */
@@ -45,7 +45,8 @@ public class OrderEndpoints {
   @Path("/")
   public Response getOrders() {
 
-    // Ændret i denne(svarende til i ProductEndpoints).Call our controller-layer in order to get the order from the DB
+    //Call our controller-layer in order to get the order from the DB
+
     ArrayList<Order> orders = orderCache.getOrders(false);
 
     // TODO: Add Encryption to JSON: Fixed

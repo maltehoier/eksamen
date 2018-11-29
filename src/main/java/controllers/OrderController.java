@@ -116,96 +116,97 @@ public class OrderController {
 
   public static Order createOrder(Order order) {
 
-    // Write in log that we've reach this step
-    Log.writeLog(OrderController.class.getName(), order, "Actually creating a order in DB", 0);
+  // Write in log that we've reach this step
+  Log.writeLog(OrderController.class.getName(), order, "Actually creating a order in DB", 0);
 
-    // Set creation and updated time for order.
-    order.setCreatedAt(System.currentTimeMillis() / 1000L);
-    order.setUpdatedAt(System.currentTimeMillis() / 1000L);
+  // Set creation and updated time for order.
+  order.setCreatedAt(System.currentTimeMillis() / 1000L);
+  order.setUpdatedAt(System.currentTimeMillis() / 1000L);
 
-    // Check for DB Connection
-    if (dbCon == null) {
-      dbCon = new DatabaseController();
-    }
-
-    //selv tilføjet et try
-
-    try {
-      //skal ikke autoCommite hver gange. Vi skal være sikker på at det gøres korrekt først
-      //Vi skal have alt data med for at lave en order. så deer ikke er null værider
-      DatabaseController.getConnection().setAutoCommit(false);
-
-      // Save addresses to database and save them back to initial order instance
-      order.setBillingAddress(AddressController.createAddress(order.getBillingAddress()));
-      order.setShippingAddress(AddressController.createAddress(order.getShippingAddress()));
-
-      // Save the user to the database and save them back to initial order instance
-      order.setCustomer(UserController.createUser(order.getCustomer()));
-
-      // TODO: Enable transactions in order for us to not save the order if somethings fails for some of the other inserts. FIXED
-
-      // Insert the product in the DB
-      int orderID = dbCon.insert(
-              "INSERT INTO orders(user_id, billing_address_id, shipping_address_id, order_total, created_at, updated_at) VALUES("
-                      + order.getCustomer().getId()
-                      + ", "
-                      + order.getBillingAddress().getId()
-                      + ", "
-                      + order.getShippingAddress().getId()
-                      + ", "
-                      + order.calculateOrderTotal()
-                      + ", "
-                      + order.getCreatedAt()
-                      + ", "
-                      + order.getUpdatedAt()
-                      + ")");
-
-
-      if (orderID != 0) {
-        //Update the productid of the product before returning
-        order.setId(orderID);
-      }
-
-      // Create an empty list in order to go trough items and then save them back with ID
-      ArrayList<LineItem> items = new ArrayList<LineItem>();
-
-      // Save line items to database
-      for (LineItem item : order.getLineItems()) {
-        item = LineItemController.createLineItem(item, order.getId());
-        items.add(item);
-
-        //selv tilføjet. manuelt commit, kommer til databasen
-        DatabaseController.getConnection().commit();
-      }
-
-      order.setLineItems(items);
-
-    }
-
-    catch (SQLException e) {
-      try {
-
-        //google rollback --> stopper lukker connection til databasen.
-        DatabaseController.getConnection().rollback();
-      }
-      catch (SQLException e1) {
-        e1.printStackTrace();
-
-      }
-
-      finally {
-        try {
-          //skal virke for at andre metoder kan virke
-          DatabaseController.getConnection().setAutoCommit(true);
-        }
-        catch (SQLException e2) {
-          e2.printStackTrace();
-        }
-      }
-    }
-
-
-    // Return order
-    return order;
+  // Check for DB Connection
+  if (dbCon == null) {
+    dbCon = new DatabaseController();
   }
+
+
+  try {
+    //skal ikke autoCommite hver gange. Vi skal være sikker på at det gøres korrekt først
+    //Vi skal have alt data med for at lave en order. så deer ikke er null værider
+
+    //setAutoCommit(false) to make sure, that no data will be commited until we are sure, that the order is created properly
+    DatabaseController.getConnection().setAutoCommit(false);
+
+    // Save addresses to database and save them back to initial order instance
+    order.setBillingAddress(AddressController.createAddress(order.getBillingAddress()));
+    order.setShippingAddress(AddressController.createAddress(order.getShippingAddress()));
+
+    // Save the user to the database and save them back to initial order instance
+    order.setCustomer(UserController.createUser(order.getCustomer()));
+
+    // TODO: Enable transactions in order for us to not save the order if somethings fails for some of the other inserts. FIXED
+
+    // Insert the product in the DB
+    int orderID = dbCon.insert(
+            "INSERT INTO orders(user_id, billing_address_id, shipping_address_id, order_total, created_at, updated_at) VALUES("
+                    + order.getCustomer().getId()
+                    + ", "
+                    + order.getBillingAddress().getId()
+                    + ", "
+                    + order.getShippingAddress().getId()
+                    + ", "
+                    + order.calculateOrderTotal()
+                    + ", "
+                    + order.getCreatedAt()
+                    + ", "
+                    + order.getUpdatedAt()
+                    + ")");
+
+
+    if (orderID != 0) {
+      //Update the productid of the product before returning
+      order.setId(orderID);
+    }
+
+    // Create an empty list in order to go trough items and then save them back with ID
+    ArrayList<LineItem> items = new ArrayList<LineItem>();
+
+    // Save line items to database
+    for (LineItem item : order.getLineItems()) {
+      item = LineItemController.createLineItem(item, order.getId());
+      items.add(item);
+
+      //Manually commiting data to DB
+      DatabaseController.getConnection().commit();
+    }
+
+    order.setLineItems(items);
+
+  }
+
+  catch (SQLException e) {
+    try {
+
+      //google rollback --> stopper lukker connection til databasen.
+      DatabaseController.getConnection().rollback();
+    }
+    catch (SQLException e1) {
+      e1.printStackTrace();
+
+    }
+
+    finally {
+      try {
+        //Finnaly AutoCommit is set to true, so we can get connection again
+        DatabaseController.getConnection().setAutoCommit(true);
+      }
+      catch (SQLException e2) {
+        e2.printStackTrace();
+      }
+    }
+  }
+
+
+  // Return order
+  return order;
+}
 }
