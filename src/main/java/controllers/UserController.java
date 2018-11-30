@@ -151,18 +151,19 @@ public class UserController {
     if(dbCon == null) {
       dbCon = new DatabaseController();
     }
-
+    //Build SQL that can delete user in DB
     String sql = "DELETE FROM user WHERE id=" + id;
 
     dbCon.deleteUser(sql);
   }
   public static void updateUser(int id, User updates){
-    // tjekker om der er forbindelse til DB
+
+    //getting connection
     if(dbCon==null){
       dbCon=new DatabaseController();
     }
 
-    //selv tilføjet if statement
+    //build SQL that can update user's personal information
 
       String sql = "UPDATE user set first_name = '" + updates.getFirstname() + "', last_name='" + updates.getLastname() + "', email= '" + updates.getEmail() + "', password= '" + updates.getPassword() + "' WHERE id=" + id;
 
@@ -170,12 +171,14 @@ public class UserController {
     }
 
 
+    //getting a specific user from DB from UserEmail
+    //Users' emails are unique, and only one user can be related to a specific email
   public static User getUserByEmail(String userEmail)  {
 
     if(dbCon==null){
       dbCon=new DatabaseController();
     }
-
+        //Build SQL
     String sql = "SELECT * FROM user WHERE email = '" + userEmail + "'";
 
     ResultSet rs =  dbCon.query(sql);
@@ -192,10 +195,11 @@ public class UserController {
                         rs.getString("password"),
                         rs.getString("email"));
 
-        //Selv tilføjet:
+        //Algorithm that creates a token
         Algorithm algorithm = Algorithm.HMAC256("Malte");
-        //opretter en token. Så man kan finde et ID ud fra en token
         String token = JWT.create().withClaim("id", user.getId()).sign(algorithm);
+
+        //setting the created token for the user
         user.setToken(token);
 
 

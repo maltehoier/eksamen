@@ -7,7 +7,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 public final class Hashing {
 
-  private String salt=Config.getSaltKey(); //selv tilføjet
+  private String salt=Config.getSaltKey();
 
   // TODO: You should add a salt and make this secure. FIXED
   public static String md5(String rawString) {
@@ -62,7 +62,7 @@ public final class Hashing {
   }
 
 
-  //selv tilføjet
+  //hasing with the salt from Confiq class to make it more secure
   public String hashWithSalt(String str){
 
     String salt = str+this.salt;

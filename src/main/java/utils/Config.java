@@ -21,11 +21,10 @@ public final class Config {
   private static String SOLR_PATH;
   private static String SOLR_CORE;
   private static long PRODUCT_TTL;
-  private static long ORDER_TTL; //SELV TILFØJET
-  private static long USER_TTL; //selv tilføjet
-  //tilføjer encryption key
+  private static long ORDER_TTL;
+  private static long USER_TTL;
   private static String ENCRYPTION_KEY;
-  private static String SALT_KEY; // selv tilføjet
+  private static String SALT_KEY; //
 
   public static char[] getEncryptionKey() {return ENCRYPTION_KEY.toCharArray();}
 
@@ -101,7 +100,7 @@ public final class Config {
     // Konverterer json til variabler ved at typecaste til JsonObject
     json = (JsonObject) parser.parse(stringBuffer.toString());
 
-    // Hiv teksten ud og sæt klassens variable til senere brug
+
     DATABASE_HOST = json.get("DATABASE_HOST").toString().replace("\"", "");
     DATABASE_PORT = Integer.parseInt(json.get("DATABASE_PORT").toString().replace("\"", ""));
     DATABASE_USERNAME = json.get("DATABASE_USERNAME").toString().replace("\"", "");
@@ -113,10 +112,10 @@ public final class Config {
     SOLR_PATH = json.get("SOLR_PATH").toString().replace("\"", "");
     SOLR_CORE = json.get("SOLR_CORE").toString().replace("\"", "");
     PRODUCT_TTL = json.get("PRODUCT_TTL").getAsLong();
-    ORDER_TTL = json.get("ORDER_TTL").getAsLong(); //selv tilføjet
-    USER_TTL = json.get("USER_TTL").getAsLong(); //selv tilføjet
+    ORDER_TTL = json.get("ORDER_TTL").getAsLong();
+    USER_TTL = json.get("USER_TTL").getAsLong();
     ENCRYPTION_KEY = json.get("ENCRYPTION_KEY").toString().replace("\"","");
-    SALT_KEY = json.get("SALT_KEY").getAsString(); // selv tilføjet
+    SALT_KEY = json.get("SALT_KEY").getAsString();
 
   }
 }
