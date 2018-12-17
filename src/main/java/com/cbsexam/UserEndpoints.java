@@ -182,22 +182,11 @@ public class UserEndpoints {
         DecodedJWT jwt = JWT.decode(updates.getToken());
 
 
-//if-statment der checker om den token man indtaster er lig med brugerens rigtige token
 
 
             //if statement that checks if a user inserts the right token
             if (jwt.getClaim("id").asInt() == idToUpdate) {
 
-
-                //beder brugeren om at indtaste token:
-
-
-                //HVAD EN TOKEN BRUGES TIL: sørger for at kun personer med en token kan updatere infomation, fordi så er vi sikker på,
-                //at de er logget ind
-
-
-                //if-statements that checks if the user has made any changes, if he has not
-                //the value will be set to the old value
 
                 if (updates.getFirstname() == null) {
                     updates.setFirstname(currentUser.getFirstname());
