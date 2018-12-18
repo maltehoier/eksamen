@@ -77,7 +77,7 @@ public class ProductController {
 
         return product;
       } else {
-        System.out.println("No user found");
+        System.out.println("No product found");
       }
     } catch (SQLException ex) {
       System.out.println(ex.getMessage());
@@ -145,9 +145,9 @@ public class ProductController {
             + "', '"
             + product.getPrice()
             + "', '"
-            + product.getDescription()
-            + "', "
-            + product.getStock()
+            + product.getDescription() //før "', "
+            + "', '"
+            + product.getStock() //før "', "
             + "', "
             + product.getCreatedTime()
             + ")");
