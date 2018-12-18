@@ -71,7 +71,8 @@ public class ProductEndpoints {
 
     // Get the user back with the added ID and return it to the user
     String json = new Gson().toJson(createdProduct);
-    productCache.getProducts(true); //selv lige tilføjet
+    //updating cache
+    productCache.getProducts(true);
 
     // Return the data to the user
     if (createdProduct != null) {

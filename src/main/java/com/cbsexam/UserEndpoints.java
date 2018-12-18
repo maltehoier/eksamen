@@ -21,6 +21,7 @@ import utils.Log;
 @Path("user")
 public class UserEndpoints {
 
+    //getting access to UserCache
     private static UserCache userCache = new UserCache();
 
     /**
@@ -46,7 +47,7 @@ public class UserEndpoints {
             return Response.status(200).type(MediaType.APPLICATION_JSON_TYPE).entity(json).build();
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            return Response.status(400).entity("could not get users").build();
+            return Response.status(400).entity("could not get user").build();
         }
 
 
@@ -91,6 +92,7 @@ public class UserEndpoints {
 
         // Get the user back with the added ID and return it to the user
         String json = new Gson().toJson(createUser);
+        //updating cache since a change has happened
         userCache.getUsers(true);
 
         // Return the data to the user
@@ -130,19 +132,23 @@ public class UserEndpoints {
     }
 
     // TODO: Make the system able to delete users. FIXED
+
+    //delete user with a specific ID
     @POST
     @Path("/delete/{delete}")
     public Response deleteUser(@PathParam("delete") int idToDelete, String body) {
 
 
         try {
+
+            //user we want to delete
             User userToDelete = new Gson().fromJson(body, User.class);
 
 
             //decodes token and saves value in "jwt"
             DecodedJWT jwt = JWT.decode(userToDelete.getToken());
 
-            //if the user's token matches the spcific ID, then he will be able to delete
+            //if the user's token matches the specific ID, then he will be able to delete
             if (jwt.getClaim("id").asInt() == idToDelete) {
                 UserController.deleteUser(idToDelete);
 
@@ -162,6 +168,8 @@ public class UserEndpoints {
     }
 
     // TODO: Make the system able to update users. FIXED
+
+    //updating user details
     @POST
     @Path("/update/{update}")
     public Response updateUser(@PathParam("update") int idToUpdate, String body) {
@@ -170,10 +178,8 @@ public class UserEndpoints {
         //getting the user from DB
         User currentUser = UserController.getUser(idToUpdate);
 
-
+        //getting access to hashin
         Hashing hashing = new Hashing();
-
-
 
         //getting the updates that the user wish to make and save them in a new User object
         User updates = new Gson().fromJson(body, User.class);
@@ -184,7 +190,7 @@ public class UserEndpoints {
 
 
 
-            //if statement that checks if a user inserts the right token
+            //if statement that checks if a user inserts the right token in the body
             if (jwt.getClaim("id").asInt() == idToUpdate) {
 
 

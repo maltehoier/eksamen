@@ -36,7 +36,7 @@ public class ProductCache {
       this.products = products;
       this.created = System.currentTimeMillis() / 1000L;
 
-      //else user.getProduct
+
     }
 
     // Return the documents

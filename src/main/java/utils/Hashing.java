@@ -62,7 +62,7 @@ public final class Hashing {
   }
 
 
-  //hasing with the salt from Confiq class to make it more secure
+  //hashing with the salt from Confiq class to make it more secure
   public String hashWithSalt(String str){
 
     String salt = str+this.salt;

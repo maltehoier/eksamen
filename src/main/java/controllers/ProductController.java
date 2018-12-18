@@ -145,9 +145,9 @@ public class ProductController {
             + "', '"
             + product.getPrice()
             + "', '"
-            + product.getDescription() //før "', "
+            + product.getDescription()
             + "', '"
-            + product.getStock() //før "', "
+            + product.getStock()
             + "', "
             + product.getCreatedTime()
             + ")");

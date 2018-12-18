@@ -144,7 +144,7 @@ public class UserController {
   }
 
 
-  //Hele denne metode er selv tilføjet
+
   //Method that delete a user from the database
 
   public static void deleteUser(int id) {
@@ -204,7 +204,7 @@ public class UserController {
 
 
 
-        // return the create object
+        // return the created object
         return user;
       } else {
         System.out.println("No user found");

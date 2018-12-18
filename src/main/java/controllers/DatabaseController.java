@@ -23,7 +23,7 @@ public class DatabaseController {
    */
   public static Connection getConnection() {
     try {
-      // Set the dataabase connect with the data from the config
+      // Set the database connect with the data from the config
       String url =
           "jdbc:mysql://"
               + Config.getDatabaseHost()

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-//Denne klasse bruges til at tilgå data fra config JSON filen
+//This class is used to get access to confiq.json
 public final class Config {
 
   private static String DATABASE_HOST;
@@ -24,7 +24,7 @@ public final class Config {
   private static long ORDER_TTL;
   private static long USER_TTL;
   private static String ENCRYPTION_KEY;
-  private static String SALT_KEY; //
+  private static String SALT_KEY;
 
   public static char[] getEncryptionKey() {return ENCRYPTION_KEY.toCharArray();}
 
@@ -34,7 +34,7 @@ public final class Config {
     return PRODUCT_TTL;
   }
 
-  public static long getOrderTtl() { return ORDER_TTL; } //SELV TILFØJET
+  public static long getOrderTtl() { return ORDER_TTL; }
 
   public static long getUserTtl() { return USER_TTL; }
 

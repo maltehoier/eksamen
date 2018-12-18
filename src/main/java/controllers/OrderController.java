@@ -130,8 +130,6 @@ public class OrderController {
 
 
   try {
-    //skal ikke autoCommite hver gange. Vi skal være sikker på at det gøres korrekt først
-    //Vi skal have alt data med for at lave en order. så deer ikke er null værider
 
     //setAutoCommit(false) to make sure, that no data will be commited until we are sure, that the order is created properly
     DatabaseController.getConnection().setAutoCommit(false);
@@ -186,7 +184,7 @@ public class OrderController {
   catch (SQLException e) {
     try {
 
-      //google rollback --> stopper lukker connection til databasen.
+
       DatabaseController.getConnection().rollback();
     }
     catch (SQLException e1) {
@@ -196,7 +194,7 @@ public class OrderController {
 
     finally {
       try {
-        //Finnaly AutoCommit is set to true, so we can get connection again
+        //Finaly AutoCommit is set to true, so we can get connection again
         DatabaseController.getConnection().setAutoCommit(true);
       }
       catch (SQLException e2) {
