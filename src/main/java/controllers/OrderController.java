@@ -143,7 +143,7 @@ public class OrderController {
 
     // TODO: Enable transactions in order for us to not save the order if somethings fails for some of the other inserts. FIXED
 
-    // Insert the product in the DB
+    // Insert the order in the DB
     int orderID = dbCon.insert(
             "INSERT INTO orders(user_id, billing_address_id, shipping_address_id, order_total, created_at, updated_at) VALUES("
                     + order.getCustomer().getId()
@@ -161,7 +161,7 @@ public class OrderController {
 
 
     if (orderID != 0) {
-      //Update the productid of the product before returning
+      //Update the orderid of the order before returning
       order.setId(orderID);
     }
 
